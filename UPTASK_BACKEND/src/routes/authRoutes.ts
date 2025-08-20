@@ -39,4 +39,12 @@ router.post('/login',
     AuthController.login
 )
 
+router.post('/request-code',
+    body('email')
+        .notEmpty().withMessage("El correo no puede ir vacio"),
+    handleInputErrors,
+    AuthController.requestConfirmCode
+)
+
+
 export default router
