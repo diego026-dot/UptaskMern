@@ -16,7 +16,7 @@ const TokenSchema : Schema = new Schema({
         type: Types.ObjectId,
         ref: 'User'
     },
-    createdAd
+    expiresAt
     : {
         type: Date,
         required: true,

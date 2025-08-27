@@ -60,7 +60,7 @@ router.post('/validate-token',
     AuthController.validateToken
 )
 
-router.post('/update-passsword/:token',
+router.post('/update-password/:token',
     param('token')
         .notEmpty().withMessage("El Token no puede ir vacio"),
     body('password')

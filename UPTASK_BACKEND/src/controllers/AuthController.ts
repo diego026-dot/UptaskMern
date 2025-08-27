@@ -5,6 +5,7 @@ import Token from "../models/Token"
 import { generateToken } from "../utils/token"
 import { transporter } from "../config/nodemailer"
 import { AuthEmail } from "../emails/AuthEmail"
+import { generateJWT } from "../utils/jwt"
 
 export class AuthController {
 
@@ -78,7 +79,7 @@ export class AuthController {
             const user = await User.findOne({ email })
             if (!user) {
                 const error = Error("El usuario no existe")
-                res.status(404).json({ erorr: error.message })
+                res.status(404).json({ error: error.message })
                 return
             }
 
@@ -97,18 +98,20 @@ export class AuthController {
                 })
 
                 const error = Error("La cuenta aun no ha sido confirmada, se a reenviado un email de confirmacion")
-                res.status(401).json({ erorr: error.message })
+                res.status(401).json({ error: error.message })
                 return
             }
 
-            const passwordCorrect = checkPassword(password, user.password)
+            const passwordCorrect = await checkPassword(password, user.password)
             if(!passwordCorrect){
                 const error = Error("Passwrod incorrecto")
-                res.status(401).json({ erorr: error.message })
+                res.status(401).json({ error: error.message })
                 return
+                
             }
+            const token = generateJWT({id: user.id})
 
-            res.send('Autenticado')
+            res.send(token)
 
 
         } catch (error) {
@@ -228,7 +231,7 @@ export class AuthController {
             
             
             await Promise.allSettled([user.save(), tokenExists.deleteOne()])
-            res.send('Token Valida, Define tu nuevo password')
+            res.send('Contraseña actualizada correctamente')
 
         } catch (error) {
             res.status(500).json({ error: "Hubo un error" })

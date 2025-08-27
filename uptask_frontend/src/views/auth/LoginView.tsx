@@ -17,10 +17,11 @@ export default function LoginView() {
     const { mutate } = useMutation({
         mutationFn: authenticateUser,
         onError: (error) => {
+            console.log(error.message)
             toast.error(error.message)
         },
-        onSuccess: (data) => {
-            toast.success(data)
+        onSuccess: () => {
+            toast.success('Iniciando Sesion..')
 
         }
     })
