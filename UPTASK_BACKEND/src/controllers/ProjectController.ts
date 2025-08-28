@@ -6,6 +6,7 @@ export class ProjectController {
     static createProject = async (req: Request , res: Response) => {
 
         const project = new Project(req.body)
+        project.manager = req.user.id
 
         try {
             await project.save()
@@ -19,7 +20,11 @@ export class ProjectController {
     static getAllProjects = async (req: Request , res: Response) => {
         
         try {
-            const data = await Project.find({})
+            const data = await Project.find({
+                $or: [
+                    {manager: {$in: req.body.user}}
+                ]
+            })
             res.json(data)
             
         } catch (error) {
@@ -35,6 +40,11 @@ export class ProjectController {
             const data = await Project.findById(id).populate('tasks')
             if(!data){
                 const error = new Error('Proyecto no encontrado')
+                res.status(404).json({error : error.message})
+            }
+
+            if(data.manager.toString() !== req.user.id){
+                const error = new Error('Accion no valida')
                 res.status(404).json({error : error.message})
             }
             
@@ -55,6 +65,11 @@ export class ProjectController {
                 const error = new Error('Proyecto no encontrado')
                 res.status(404).json({error : error.message})
             }
+
+             if(project.manager.toString() !== req.user.id){
+                const error = new Error('Solo el manager puede actualizar un proyecto')
+                res.status(404).json({error : error.message})
+            }
             
             await project.save()
             res.send('Proyecto Actualizado')
@@ -73,6 +88,12 @@ export class ProjectController {
                 const error = new Error('Proyecto no encontrado')
                 res.status(404).json({error : error.message})
             }
+
+            if(data.manager.toString() !== req.user.id){
+                const error = new Error('Solo el manager puede eliminar un proyecto')
+                res.status(404).json({error : error.message})
+            }
+            
             await data.deleteOne()
             res.json('Proyecto eliminado')
             
