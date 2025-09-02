@@ -22,7 +22,7 @@ export class ProjectController {
         try {
             const data = await Project.find({
                 $or: [
-                    {manager: {$in: req.body.user}}
+                    {manager: {$in: req.user.id}}
                 ]
             })
             res.json(data)

@@ -15,9 +15,10 @@ export const authenticate = async (req : Request,res : Response,next: NextFuncti
     if(!bearer){
         const error = new Error('No autorizado')
         res.status(401).json({error: error.message})
+        return
     }
 
-    const token = bearer.split(' ')[1]
+    const [, token] = bearer.split(' ')
 
     try {
 
@@ -27,9 +28,10 @@ export const authenticate = async (req : Request,res : Response,next: NextFuncti
            const user = await User.findById(decoded.id).select('-password -confirmed') 
            if(user){
                 req.user = user
-                 next()
+                next()
            }else{
                 res.status(500).json({error: 'Token no valido'})
+               return
            }
         }
         
